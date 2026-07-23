@@ -4,6 +4,7 @@ Changelog
 1.0.0 (Unreleased)
 ------------------
 
+- #15 Create FHIR instrument ServiceRequests when an instrument is assigned to an analysis
 - #14 Expose SENAITE instruments as FHIR Device resources
 - #11 Build Specimen resources from SENAITE Analysis Request data
 - #13 Fix dropped marital status on FHIR patient import
