@@ -188,10 +188,10 @@ as text:
     ...     str(uuid.UUID(api.get_uid(sample))))
     True
 
-``identifier`` carries the sample's id under the ``servicerequest-id``
+``identifier`` carries the sample's id under the ``analysis-id``
 naming system:
 
-    >>> resource["identifier"][0]["value"] == sample.getId()
+    >>> resource["identifier"][0]["value"] == "{}-{}".format(sample.getId(), analysis.getId())
     True
     >>> resource["identifier"][0]["use"]
     u'usual'
