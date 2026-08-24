@@ -4,6 +4,7 @@ Changelog
 1.0.0 (Unreleased)
 ------------------
 
+- #22 Improve Observation result submission validation and remarks handling
 - #21 Serialize ServiceRequest Bundle timestamp as FHIR datetime
 - #18 Fix bundle POST response status, error handling and None guard
 - #19 Add POST /Observation support to submit Analysis results
