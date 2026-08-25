@@ -4,6 +4,7 @@ Changelog
 1.0.0 (Unreleased)
 ------------------
 
+- #30 Refactor Object Ids and External Ids across FHIR resources
 - #22 Improve Observation result submission validation and remarks handling
 - #21 Serialize ServiceRequest Bundle timestamp as FHIR datetime
 - #18 Fix bundle POST response status, error handling and None guard
