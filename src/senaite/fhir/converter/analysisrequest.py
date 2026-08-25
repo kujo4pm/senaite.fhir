@@ -145,16 +145,31 @@ class ResourceToAnalysisRequest(object):
 
         object_id = obj.get_object_id()
         if object_id:
-            raise ValueError("Cannot specify usual identifier externally in incoming {}:{}".format(obj_name, object_id.value))
+            raise ServiceRequestValidationError(
+                "Cannot specify usual identifier externally in incoming "
+                "{}:{}".format(obj_name, object_id.value),
+                expression=["{}.identifier".format(obj_name)],
+                code="invalid",
+            )
 
     def _validate_external_identifier(self, obj, obj_name, valid_system=None):
         """Helper to reject resource that tries to mandate internal identifier"""
         external_id = obj.get_external_id()
         if external_id:
             if valid_system is None:
-                 raise ValueError("Cannot specify external identifier in {}:{}".format(obj_name, external_id.value))
+                raise ServiceRequestValidationError(
+                    "Cannot specify external identifier in {}:{}".format(
+                        obj_name, external_id.value),
+                    expression=["{}.identifier".format(obj_name)],
+                    code="invalid",
+                )
             if external_id.system != valid_system:
-                raise ValueError("Unsupported identifier system in {}: {}".format(obj_name, external_id.system))
+                raise ServiceRequestValidationError(
+                    "Unsupported identifier system in {}: {}".format(
+                        obj_name, external_id.system),
+                    expression=["{}.identifier".format(obj_name)],
+                    code="invalid",
+                )
 
     def validate_identifiers(self):
         """Validates identifiers"""
