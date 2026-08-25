@@ -243,7 +243,7 @@ The AnalysisRequest is created without a ClientSampleID:
     >>> portal._p_jar.sync()
     >>> samples = client.objectValues("AnalysisRequest")
     >>> len(samples)
-    1 # overwrites the first
+    1
     >>> new_sample = [s for s in samples if not s.getClientSampleID()][0]
     >>> new_sample.getClientSampleID()
 

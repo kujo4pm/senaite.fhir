@@ -13,7 +13,8 @@ from zope.deprecation import deprecate
 
 
 def to_local_system(system_id):
-    return  "%s/NamingSystem/%s" % (FHIR_BASE_URL, system_id)
+    return "%s/NamingSystem/%s" % (FHIR_BASE_URL, system_id)
+
 
 def to_fhir_identifier(system_id, value, use=None):
     if not value:

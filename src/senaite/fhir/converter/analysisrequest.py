@@ -121,8 +121,13 @@ class AnalysisRequestToSpecimen(object):
 
         client_sample_id = ar.getClientSampleID()
         if client_sample_id:
-            data["identifier"] = [to_fhir_id(
-            "client-sample-id", client_sample_id, use="secondary")]
+            data["identifier"] = [
+                to_fhir_id(
+                    "client-sample-id",
+                    client_sample_id,
+                    use="secondary",
+                )
+            ]
 
         return SpecimenResource(data)
 
@@ -139,15 +144,15 @@ class ResourceToAnalysisRequest(object):
         """
         self.validate_identifiers()
 
-
     def _reject_object_identifier(self, obj, obj_name):
         """Helper to reject resource that tries to mandate internal identifier"""
-
         object_id = obj.get_object_id()
         if object_id:
+            msg = "Cannot specify usual identifier externally in incoming {}:{}".format(
+                obj_name, object_id.value
+            )
             raise ServiceRequestValidationError(
-                "Cannot specify usual identifier externally in incoming "
-                "{}:{}".format(obj_name, object_id.value),
+                msg,
                 expression=["{}.identifier".format(obj_name)],
                 code="invalid",
             )
@@ -157,16 +162,20 @@ class ResourceToAnalysisRequest(object):
         external_id = obj.get_external_id()
         if external_id:
             if valid_system is None:
+                msg = "Cannot specify external identifier in {}:{}".format(
+                    obj_name, external_id.value
+                )
                 raise ServiceRequestValidationError(
-                    "Cannot specify external identifier in {}:{}".format(
-                        obj_name, external_id.value),
+                    msg,
                     expression=["{}.identifier".format(obj_name)],
                     code="invalid",
                 )
             if external_id.system != valid_system:
+                msg = "Unsupported identifier system in {}: {}".format(
+                    obj_name, external_id.system
+                )
                 raise ServiceRequestValidationError(
-                    "Unsupported identifier system in {}: {}".format(
-                        obj_name, external_id.system),
+                    msg,
                     expression=["{}.identifier".format(obj_name)],
                     code="invalid",
                 )
@@ -174,13 +183,17 @@ class ResourceToAnalysisRequest(object):
     def validate_identifiers(self):
         """Validates identifiers"""
         self._reject_object_identifier(self.resource, "ServiceRequest")
-        self. _validate_external_identifier(self.resource, "ServiceRequest")
+        self._validate_external_identifier(self.resource, "ServiceRequest")
 
         ref = self.get_reference("specimen")
         specimen = self.get_bundle_sibling(ref)
         if specimen:
             self._reject_object_identifier(specimen, "Specimen")
-            self._validate_external_identifier(specimen, "Specimen", to_local_system("client-sample-id"))
+            self._validate_external_identifier(
+                specimen,
+                "Specimen",
+                to_local_system("client-sample-id"),
+            )
 
     def to_content_dict(self):
         # TODO We don't validate category + SNOMED code (is necessary?)
@@ -329,7 +342,8 @@ class ResourceToAnalysisRequest(object):
         """
         ref = self.get_reference("specimen")
         specimen = self.get_bundle_sibling(ref)
-        return specimen.get_external_id().value if specimen.get_external_id() else None
+        external = specimen.get_external_id()
+        return external.value if external else None
 
     @memoize
     def get_specifications(self):
