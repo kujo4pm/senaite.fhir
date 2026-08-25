@@ -194,24 +194,28 @@ The ``code`` field is derived from the sample's AnalysisProfile:
     >>> code["coding"][0]["code"]
     u'metals-panel'
 
-The `identifier` list contains the sample ID with the correct `use` and
-`system`:
+The `identifier` list carries the sample ID under the `sample-id` naming
+system, as the `usual` identifier:
 
     >>> identifiers = resource["identifier"]
-    >>> sample_identifier = next((i for i in identifiers if i.get("value") == sample_id), None)
+    >>> sample_identifier = next(
+    ...     (i for i in identifiers if i.get("value") == sample_id), None)
     >>> sample_identifier.get("use") == "usual"
     True
-    >>> sample_identifier.get("system") == "https://fhir.senaite.org/NamingSystem/sample-id"
+    >>> sample_identifier.get("system") == (
+    ...     "https://fhir.senaite.org/NamingSystem/sample-id")
     True
 
-The `identifier` list contains the sample ID with the correct `use` and
-`system`:
+...and the client sample ID under the `client-sample-id` naming system, as the
+`secondary` one:
 
-    >>> identifiers = resource["identifier"]
-    >>> sample_identifier = next((i for i in identifiers if i.get("value") == 'EXT-999-666-333'), None)
-    >>> sample_identifier.get("use") == "secondary"
+    >>> client_identifier = next(
+    ...     (i for i in identifiers if i.get("value") == "EXT-999-666-333"),
+    ...     None)
+    >>> client_identifier.get("use") == "secondary"
     True
-    >>> sample_identifier.get("system") == "https://fhir.senaite.org/NamingSystem/client-sample-id"
+    >>> client_identifier.get("system") == (
+    ...     "https://fhir.senaite.org/NamingSystem/client-sample-id")
     True
 
 Internally created samples do not have a backing FHIR ``ServiceRequest``,
