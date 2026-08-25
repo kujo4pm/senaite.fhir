@@ -194,7 +194,8 @@ The ``code`` field is derived from the sample's AnalysisProfile:
     >>> code["coding"][0]["code"]
     u'metals-panel'
 
-The ``identifier`` list contains the sample ID with the correct ``use`` and ``system``:
+The `identifier` list contains the sample ID with the correct `use` and
+`system`:
 
     >>> identifiers = resource["identifier"]
     >>> sample_identifier = next((i for i in identifiers if i.get("value") == sample_id), None)
@@ -203,7 +204,8 @@ The ``identifier`` list contains the sample ID with the correct ``use`` and ``sy
     >>> sample_identifier.get("system") == "https://fhir.senaite.org/NamingSystem/sample-id"
     True
 
-The ``identifier`` list contains the sample ID with the correct ``use`` and ``system``:
+The `identifier` list contains the sample ID with the correct `use` and
+`system`:
 
     >>> identifiers = resource["identifier"]
     >>> sample_identifier = next((i for i in identifiers if i.get("value") == 'EXT-999-666-333'), None)

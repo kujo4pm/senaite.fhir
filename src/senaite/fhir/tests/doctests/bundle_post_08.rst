@@ -1,23 +1,23 @@
 FHIR Bundle POST – Identifier Validation
 ========================================
 
-Tests the identifier validation layer in ``ResourceToAnalysisRequest.validate_identifiers()``:
+Tests the identifier validation layer in `ResourceToAnalysisRequest.validate_identifiers()`:
 
-1. **Rejection of usual identifier in ServiceRequest**: when a ``ServiceRequest``
-   carries an identifier with ``use="usual"``, the conversion raises with
-   ``"Cannot specify usual identifier externally in incoming ServiceRequest"``.
+1. **Rejection of usual identifier in ServiceRequest**: when a `ServiceRequest`
+   carries an identifier with `use="usual"`, the conversion raises with
+   `"Cannot specify usual identifier externally in incoming ServiceRequest"`.
 
-2. **Rejection of usual identifier in Specimen**: when a ``Specimen``
-   carries an identifier with ``use="usual"``, the conversion raises with
-   ``"Cannot specify usual identifier externally in incoming Specimen"``.
+2. **Rejection of usual identifier in Specimen**: when a `Specimen`
+   carries an identifier with `use="usual"`, the conversion raises with
+   `"Cannot specify usual identifier externally in incoming Specimen"`.
 
-3. **Rejection of external identifier in ServiceRequest**: when a ``ServiceRequest``
-   carries an identifier with ``use="secondary"`` and ``system="client-sample-id"``,
-   the conversion raises with ``"Cannot specify external identifier in ServiceRequest"``.
+3. **Rejection of external identifier in ServiceRequest**: when a `ServiceRequest`
+   carries an identifier with `use="secondary"` and `system="client-sample-id"`,
+   the conversion raises with `"Cannot specify external identifier in ServiceRequest"`.
 
-4. **Allow external identifier in Specimen**: when a ``Specimen`` carries an
-   identifier with ``use="secondary"`` and ``system="client-sample-id"``, the
-   conversion succeeds and the identifier is used as the ``ClientSampleID``.
+4. **Allow external identifier in Specimen**: when a `Specimen` carries an
+   identifier with `use="secondary"` and `system="client-sample-id"`, the
+   conversion succeeds and the identifier is used as the `ClientSampleID`.
 
 Running this test from the buildout directory:
 
@@ -82,7 +82,7 @@ Create the basic SENAITE objects needed for bundle processing:
 Rejection – ServiceRequest with usual identifier
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-When a ``ServiceRequest`` carries an identifier with ``use="usual"``, the
+When a `ServiceRequest` carries an identifier with `use="usual"`, the
 conversion must reject it as internal IDs cannot be specified externally:
 
     >>> sr_entry = [e for e in bundle["entry"]
@@ -115,7 +115,7 @@ No AnalysisRequest is created:
 Rejection – Specimen with usual identifier
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-When a ``Specimen`` carries an identifier with ``use="usual"``, the
+When a `Specimen` carries an identifier with `use="usual"`, the
 conversion must reject it:
 
     >>> raw = resource_string("senaite.fhir.tests", "data/Bundle.01.json")
@@ -148,8 +148,8 @@ No AnalysisRequest is created:
 Rejection – ServiceRequest with external identifier
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-When a ``ServiceRequest`` carries an identifier with ``use="secondary"`` and
-``system="client-sample-id"``, the conversion must reject it as ServiceRequest
+When a `ServiceRequest` carries an identifier with `use="secondary"` and
+`system="client-sample-id"`, the conversion must reject it as ServiceRequest
 should not carry external identifiers (only Specimen should):
 
     >>> raw = resource_string("senaite.fhir.tests", "data/Bundle.01.json")
@@ -182,9 +182,9 @@ No AnalysisRequest is created:
 Success – Specimen with external identifier
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-When a ``Specimen`` carries an identifier with ``use="secondary"`` and
-``system="client-sample-id"``, the conversion succeeds and the identifier
-value becomes the ``ClientSampleID`` of the created ``AnalysisRequest``:
+When a `Specimen` carries an identifier with `use="secondary"` and
+`system="client-sample-id"`, the conversion succeeds and the identifier
+value becomes the `ClientSampleID` of the created `AnalysisRequest`:
 
     >>> raw = resource_string("senaite.fhir.tests", "data/Bundle.01.json")
     >>> bundle = json.loads(raw)
@@ -219,8 +219,8 @@ The AnalysisRequest is created with the correct ClientSampleID:
 Success – No identifiers
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-When a ``Bundle`` carries no identifiers on either ``ServiceRequest`` or
-``Specimen``, the conversion succeeds normally:
+When a `Bundle` carries no identifiers on either `ServiceRequest` or
+`Specimen`, the conversion succeeds normally:
 
     >>> raw = resource_string("senaite.fhir.tests", "data/Bundle.01.json")
     >>> bundle = json.loads(raw)
