@@ -76,7 +76,10 @@ class ResultsReportToResource(object):
         client_sample_id = sample.getClientSampleID()
         if client_sample_id:
             identifiers.append(
-                to_fhir_id("client-sample-id", client_sample_id, use="secondary")
+                to_fhir_id(
+                    "client-sample-id",
+                    client_sample_id,
+                    use="secondary")
             )
         return identifiers
 
