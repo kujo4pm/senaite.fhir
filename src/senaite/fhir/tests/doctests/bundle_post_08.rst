@@ -185,6 +185,43 @@ No AnalysisRequest is created:
     0
 
 
+Rejection: Specimen with an unsupported identifier system
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The `Specimen` may carry an external identifier, but only under the
+`client-sample-id` naming system -- the profile slices `identifier` with
+`closed` rules, so any other system is rejected:
+
+    >>> raw = resource_string("senaite.fhir.tests", "data/Bundle.01.json")
+    >>> bundle = json.loads(raw)
+    >>> specimen_entry = [e for e in bundle["entry"]
+    ...                   if e["resource"]["resourceType"] == "Specimen"][0]
+    >>> specimen_entry["resource"]["identifier"] = [
+    ...     {
+    ...         "use": "secondary",
+    ...         "system": "https://example.org/NamingSystem/their-own-id",
+    ...         "value": "EXT-CARDIAC-004"
+    ...     }
+    ... ]
+    >>> browser.post("{}/Bundle".format(fhir_url), json.dumps(bundle),
+    ...              content_type="application/json")
+    >>> browser.headers["Status"]
+    '400 Bad Request'
+    >>> outcome = json.loads(browser.contents)
+    >>> issue = outcome["issue"][0]
+    >>> issue["expression"]
+    [u'Specimen.identifier']
+    >>> text = issue["details"]["text"]
+    >>> "Unsupported identifier system in Specimen" in text
+    True
+
+No AnalysisRequest is created:
+
+    >>> portal._p_jar.sync()
+    >>> len(client.objectValues("AnalysisRequest"))
+    0
+
+
 Success: Specimen with an external identifier
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
