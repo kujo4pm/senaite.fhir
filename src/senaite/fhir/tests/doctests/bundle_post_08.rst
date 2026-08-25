@@ -1,7 +1,8 @@
-FHIR Bundle POST – Identifier Validation
-========================================
+FHIR Bundle POST (identifier validation)
+----------------------------------------
 
-Tests the identifier validation layer in `ResourceToAnalysisRequest.validate_identifiers()`:
+Tests the identifier validation layer in
+`ResourceToAnalysisRequest.validate_identifiers()`:
 
 1. **Rejection of usual identifier in ServiceRequest**: when a `ServiceRequest`
    carries an identifier with `use="usual"`, the conversion raises with
@@ -11,9 +12,10 @@ Tests the identifier validation layer in `ResourceToAnalysisRequest.validate_ide
    carries an identifier with `use="usual"`, the conversion raises with
    `"Cannot specify usual identifier externally in incoming Specimen"`.
 
-3. **Rejection of external identifier in ServiceRequest**: when a `ServiceRequest`
-   carries an identifier with `use="secondary"` and `system="client-sample-id"`,
-   the conversion raises with `"Cannot specify external identifier in ServiceRequest"`.
+3. **Rejection of external identifier in ServiceRequest**: when a
+   `ServiceRequest` carries an identifier with `use="secondary"` and
+   `system="client-sample-id"`, the conversion raises with
+   `"Cannot specify external identifier in ServiceRequest"`.
 
 4. **Allow external identifier in Specimen**: when a `Specimen` carries an
    identifier with `use="secondary"` and `system="client-sample-id"`, the
@@ -79,7 +81,7 @@ Create the basic SENAITE objects needed for bundle processing:
     >>> transaction.commit()
 
 
-Rejection – ServiceRequest with usual identifier
+Rejection: ServiceRequest with a usual identifier
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 When a `ServiceRequest` carries an identifier with `use="usual"`, the
@@ -102,7 +104,8 @@ conversion must reject it as internal IDs cannot be specified externally:
     >>> outcome["resourceType"]
     u'OperationOutcome'
     >>> issue = outcome["issue"][0]
-    >>> "Cannot specify usual identifier externally" in issue["details"]["text"]
+    >>> text = issue["details"]["text"]
+    >>> "Cannot specify usual identifier externally" in text
     True
 
 No AnalysisRequest is created:
@@ -112,7 +115,7 @@ No AnalysisRequest is created:
     0
 
 
-Rejection – Specimen with usual identifier
+Rejection: Specimen with a usual identifier
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 When a `Specimen` carries an identifier with `use="usual"`, the
@@ -135,7 +138,8 @@ conversion must reject it:
     '400 Bad Request'
     >>> outcome = json.loads(browser.contents)
     >>> issue = outcome["issue"][0]
-    >>> "Cannot specify usual identifier externally" in issue["details"]["text"]
+    >>> text = issue["details"]["text"]
+    >>> "Cannot specify usual identifier externally" in text
     True
 
 No AnalysisRequest is created:
@@ -145,8 +149,8 @@ No AnalysisRequest is created:
     0
 
 
-Rejection – ServiceRequest with external identifier
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Rejection: ServiceRequest with an external identifier
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 When a `ServiceRequest` carries an identifier with `use="secondary"` and
 `system="client-sample-id"`, the conversion must reject it as ServiceRequest
@@ -159,7 +163,8 @@ should not carry external identifiers (only Specimen should):
     >>> sr_entry["resource"]["identifier"] = [
     ...     {
     ...         "use": "secondary",
-    ...         "system": "https://fhir.senaite.org/NamingSystem/client-sample-id",
+    ...         "system": ("https://fhir.senaite.org"
+    ...                    "/NamingSystem/client-sample-id"),
     ...         "value": "EXT-CARDIAC-003"
     ...     }
     ... ]
@@ -169,7 +174,8 @@ should not carry external identifiers (only Specimen should):
     '400 Bad Request'
     >>> outcome = json.loads(browser.contents)
     >>> issue = outcome["issue"][0]
-    >>> "Cannot specify external identifier in ServiceRequest" in issue["details"]["text"]
+    >>> text = issue["details"]["text"]
+    >>> "Cannot specify external identifier in ServiceRequest" in text
     True
 
 No AnalysisRequest is created:
@@ -179,8 +185,8 @@ No AnalysisRequest is created:
     0
 
 
-Success – Specimen with external identifier
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Success: Specimen with an external identifier
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 When a `Specimen` carries an identifier with `use="secondary"` and
 `system="client-sample-id"`, the conversion succeeds and the identifier
@@ -193,7 +199,8 @@ value becomes the `ClientSampleID` of the created `AnalysisRequest`:
     >>> specimen_entry["resource"]["identifier"] = [
     ...     {
     ...         "use": "secondary",
-    ...         "system": "https://fhir.senaite.org/NamingSystem/client-sample-id",
+    ...         "system": ("https://fhir.senaite.org"
+    ...                    "/NamingSystem/client-sample-id"),
     ...         "value": "EXT-CARDIAC-003"
     ...     }
     ... ]
@@ -216,8 +223,8 @@ The AnalysisRequest is created with the correct ClientSampleID:
     'EXT-CARDIAC-003'
 
 
-Success – No identifiers
-~~~~~~~~~~~~~~~~~~~~~~~~
+Success: no identifiers
+~~~~~~~~~~~~~~~~~~~~~~~
 
 When a `Bundle` carries no identifiers on either `ServiceRequest` or
 `Specimen`, the conversion succeeds normally:
