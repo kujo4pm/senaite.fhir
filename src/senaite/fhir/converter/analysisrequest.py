@@ -11,7 +11,8 @@ from senaite.fhir.interfaces import IContentActionToFHIR
 from senaite.fhir.interfaces import IContentToFHIR
 from senaite.fhir.interfaces import IFHIRToContent
 from senaite.fhir.interfaces import IServiceRequestResource
-from senaite.fhir.resource.servicerequestrevoked import ServiceRequestRevokedResource  # noqa: E501
+from senaite.fhir.resource.servicerequestrevoked import (
+    ServiceRequestRevokedResource)
 from senaite.fhir.resource.specimen import SpecimenResource
 from zope.component import adapter
 from zope.interface import implementer
@@ -145,35 +146,38 @@ class ResourceToAnalysisRequest(object):
         self.validate_identifiers()
 
     def _reject_object_identifier(self, obj, obj_name):
-        """Helper to reject resource that tries to mandate internal identifier"""
+        """Reject resource that mandates internal identifier"""
         object_id = obj.get_object_id()
         if object_id:
-            msg = "Cannot specify usual identifier externally in incoming {}:{}".format(
-                obj_name, object_id.value
-            )
+            msg = (
+                "Cannot specify usual identifier externally in incoming "
+                "{}:{}"
+            ).format(obj_name, object_id.value)
             raise ServiceRequestValidationError(
                 msg,
                 expression=["{}.identifier".format(obj_name)],
                 code="invalid",
             )
 
-    def _validate_external_identifier(self, obj, obj_name, valid_system=None):
-        """Helper to reject resource that tries to mandate internal identifier"""
+    def _validate_external_identifier(self, obj, obj_name,
+                                      valid_system=None):
+        """Reject resource with invalid external identifier"""
         external_id = obj.get_external_id()
         if external_id:
             if valid_system is None:
-                msg = "Cannot specify external identifier in {}:{}".format(
-                    obj_name, external_id.value
-                )
+                msg = (
+                    "Cannot specify external identifier in "
+                    "{}:{}"
+                ).format(obj_name, external_id.value)
                 raise ServiceRequestValidationError(
                     msg,
                     expression=["{}.identifier".format(obj_name)],
                     code="invalid",
                 )
             if external_id.system != valid_system:
-                msg = "Unsupported identifier system in {}: {}".format(
-                    obj_name, external_id.system
-                )
+                msg = (
+                    "Unsupported identifier system in {}: {}"
+                ).format(obj_name, external_id.system)
                 raise ServiceRequestValidationError(
                     msg,
                     expression=["{}.identifier".format(obj_name)],
@@ -451,10 +455,12 @@ class ResourceToAnalysisRequest(object):
         if self.is_default_panel():
             if not services:
                 default = DEFAULT_REPORT_PROFILE_CODE.get("coding")[0]
-                msg = ("orderDetail must be present and contain at least one "
-                       "test code when ServiceRequest.code is the default "
-                       "panel ({}). There is no panel definition to fall "
-                       "back on.").format(default.get("code"))
+                msg = (
+                    "orderDetail must be present and contain at least one "
+                    "test code when ServiceRequest.code is the default "
+                    "panel ({}). There is no panel definition to fall "
+                    "back on."
+                ).format(default.get("code"))
 
                 raise ServiceRequestValidationError(
                     message=msg,
@@ -477,10 +483,12 @@ class ResourceToAnalysisRequest(object):
                     api.safe_unicode(test.getProtocolID()),
                     api.safe_unicode(api.get_title(test))
                 ) for test in missing]
-                msg = ("orderDetail is a partial subset of panel {panel_key} "
-                       "({panel_name}). Missing tests: [{tests}]. Either omit "
-                       "orderDetail to use the full panel definition, or "
-                       "include all panel tests.").format(
+                msg = (
+                    "orderDetail is a partial subset of panel "
+                    "{panel_key} ({panel_name}). Missing tests: "
+                    "[{tests}]. Either omit orderDetail to use the "
+                    "full panel definition, or include all panel tests."
+                ).format(
                     panel_key=api.safe_unicode(profile.getProfileKey()),
                     panel_name=api.safe_unicode(api.get_title(profile)),
                     tests=", ".join(tests))
