@@ -79,7 +79,7 @@ class AnalysisToInstrumentServiceRequest(object):
         return to_fhir_datetime(modified)
 
     def get_identifier(self, sample):
-        identifier = "{}-{}".format(sample.getId(), self.analysis.getId())
+        identifier = "{}_{}".format(sample.getId(), self.analysis.getId())
         return [to_fhir_id("analysis-id", identifier, use="usual")]
 
     def get_status(self):
