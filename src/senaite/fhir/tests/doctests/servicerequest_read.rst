@@ -191,7 +191,7 @@ as text:
 `identifier` carries the sample's id under the `analysis-id`
 naming system:
 
-    >>> resource["identifier"][0]["value"] == "{}-{}".format(sample.getId(), analysis.getId())
+    >>> resource["identifier"][0]["value"] == "{}_{}".format(sample.getId(), analysis.getId())
     True
     >>> resource["identifier"][0]["use"]
     u'usual'
