@@ -4,6 +4,8 @@ from senaite.fhir.config import DEFAULT_REPORT_PROFILE_CODE
 from senaite.fhir.converter import first_by
 from senaite.fhir.converter import to_fhir_datetime
 from senaite.fhir.converter import to_fhir_profile_url
+from senaite.fhir.converter import to_fhir_identifier as to_fhir_id
+from senaite.fhir.converter import to_local_system
 from senaite.fhir.exceptions import ServiceRequestValidationError
 from senaite.fhir.interfaces import IContentActionToFHIR
 from senaite.fhir.interfaces import IContentToFHIR
@@ -117,6 +119,11 @@ class AnalysisRequestToSpecimen(object):
         if collection:
             data["collection"] = collection
 
+        client_sample_id = ar.getClientSampleID()
+        if client_sample_id:
+            data["identifier"] = [to_fhir_id(
+            "client-sample-id", client_sample_id, use="secondary")]
+
         return SpecimenResource(data)
 
 
@@ -127,11 +134,46 @@ class ResourceToAnalysisRequest(object):
     def __init__(self, resource):
         self.resource = resource
 
+    def validate(self):
+        """Runs all the validators here. Can be extended
+        """
+        self.validate_identifiers()
+
+
+    def _reject_object_identifier(self, obj, obj_name):
+        """Helper to reject resource that tries to mandate internal identifier"""
+
+        object_id = obj.get_object_id()
+        if object_id:
+            raise ValueError("Cannot specify usual identifier externally in incoming {}:{}".format(obj_name, object_id.value))
+
+    def _validate_external_identifier(self, obj, obj_name, valid_system=None):
+        """Helper to reject resource that tries to mandate internal identifier"""
+        external_id = obj.get_external_id()
+        if external_id:
+            if valid_system is None:
+                 raise ValueError("Cannot specify external identifier in {}:{}".format(obj_name, external_id.value))
+            if external_id.system != valid_system:
+                raise ValueError("Unsupported identifier system in {}: {}".format(obj_name, external_id.system))
+
+    def validate_identifiers(self):
+        """Validates identifiers"""
+        self._reject_object_identifier(self.resource, "ServiceRequest")
+        self. _validate_external_identifier(self.resource, "ServiceRequest")
+
+        ref = self.get_reference("specimen")
+        specimen = self.get_bundle_sibling(ref)
+        if specimen:
+            self._reject_object_identifier(specimen, "Specimen")
+            self._validate_external_identifier(specimen, "Specimen", to_local_system("client-sample-id"))
+
     def to_content_dict(self):
         # TODO We don't validate category + SNOMED code (is necessary?)
+        self.validate()
 
         sample_type = self.get_sample_type()
         client = self.get_client()
+        client_sample_id = self.get_client_sample_id()
         contact = self.get_requester()
         specs = self.get_specifications()
         sample_point = self.get_sample_point()
@@ -139,9 +181,6 @@ class ResourceToAnalysisRequest(object):
         profile = self.get_profile()
         services = self.get_services()
         priority = self.get_priority()
-
-        external_id = self.resource.get_external_id()
-        client_sample_id = external_id.value if external_id else None
 
         data = {
             "portal_type": "AnalysisRequest",
@@ -268,6 +307,14 @@ class ResourceToAnalysisRequest(object):
         if obj:
             return obj
         raise ValueError("%r: No Client for %r" % (self.resource, sibling))
+
+    @memoize
+    def get_client_sample_id(self):
+        """Returns the client sample id from Specimen
+        """
+        ref = self.get_reference("specimen")
+        specimen = self.get_bundle_sibling(ref)
+        return specimen.get_external_id().value if specimen.get_external_id() else None
 
     @memoize
     def get_specifications(self):

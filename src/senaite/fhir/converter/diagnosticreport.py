@@ -71,7 +71,7 @@ class ResultsReportToResource(object):
     def get_identifier(self):
         sample = self.get_sample()
         identifiers = [
-            to_fhir_id("servicerequest-id", sample.getId(), use="usual"),
+            to_fhir_id("sample-id", sample.getId(), use="usual"),
         ]
         client_sample_id = sample.getClientSampleID()
         if client_sample_id:
