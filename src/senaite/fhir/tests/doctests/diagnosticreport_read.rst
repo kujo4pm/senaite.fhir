@@ -77,6 +77,7 @@ Create the Sample
     ...     "DateSampled": DateTime().strftime("%Y-%m-%d"),
     ...     "SampleType": sampletype.UID(),
     ...     "Profiles": [profile.UID()],
+    ...     "ClientSampleID": "EXT-999-666-333",
     ... }
     >>> sample = create_analysisrequest(client, request, values, [Cu.UID()])
     >>> sample
@@ -193,11 +194,22 @@ The ``code`` field is derived from the sample's AnalysisProfile:
     >>> code["coding"][0]["code"]
     u'metals-panel'
 
-The ``identifier`` list carries at least one entry whose ``value``
-matches the sample's internal ID:
+The ``identifier`` list contains the sample ID with the correct ``use`` and ``system``:
 
     >>> identifiers = resource["identifier"]
-    >>> any(i.get("value") == sample_id for i in identifiers)
+    >>> sample_identifier = next((i for i in identifiers if i.get("value") == sample_id), None)
+    >>> sample_identifier.get("use") == "usual"
+    True
+    >>> sample_identifier.get("system") == "https://fhir.senaite.org/NamingSystem/sample-id"
+    True
+
+The ``identifier`` list contains the sample ID with the correct ``use`` and ``system``:
+
+    >>> identifiers = resource["identifier"]
+    >>> sample_identifier = next((i for i in identifiers if i.get("value") == 'EXT-999-666-333'), None)
+    >>> sample_identifier.get("use") == "secondary"
+    True
+    >>> sample_identifier.get("system") == "https://fhir.senaite.org/NamingSystem/client-sample-id"
     True
 
 Internally created samples do not have a backing FHIR ``ServiceRequest``,
