@@ -21,7 +21,7 @@ Tests the identifier validation layer in `ResourceToAnalysisRequest.validate_ide
 
 Running this test from the buildout directory:
 
-    bin/test test_doctests -t bundle_identifier_validation
+    bin/test test_doctests -t bundle_post_08
 
 
 Test Setup
