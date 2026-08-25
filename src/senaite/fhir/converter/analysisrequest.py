@@ -5,7 +5,7 @@ from senaite.fhir.converter import first_by
 from senaite.fhir.converter import to_fhir_datetime
 from senaite.fhir.converter import to_fhir_profile_url
 from senaite.fhir.converter import to_fhir_identifier as to_fhir_id
-from senaite.fhir.converter import to_local_system
+from senaite.fhir.converter import to_naming_system_url
 from senaite.fhir.exceptions import ServiceRequestValidationError
 from senaite.fhir.interfaces import IContentActionToFHIR
 from senaite.fhir.interfaces import IContentToFHIR
@@ -196,7 +196,7 @@ class ResourceToAnalysisRequest(object):
             self._validate_external_identifier(
                 specimen,
                 "Specimen",
-                to_local_system("client-sample-id"),
+                to_naming_system_url("client-sample-id"),
             )
 
     def to_content_dict(self):
