@@ -7,7 +7,6 @@ from senaite.core.api import dtime
 from senaite.core.api import workflow as wapi
 from senaite.fhir import api as fapi
 from senaite.fhir.config import OBSERVATION_STATUSES
-from senaite.fhir.config import SYSTEM_CODES
 from senaite.fhir.config import UCUM_SYSTEM
 from senaite.fhir.converter import first_by
 from senaite.fhir.converter import to_fhir_profile_url
@@ -99,7 +98,7 @@ class AnalysisToObservation(object):
         keyword = self.analysis.getKeyword()
         title = api.get_title(self.analysis)
         service_title = api.get_title(service) if service else title
-        coding =  [{
+        coding = [{
             "system": to_code_system_url("analysis-keyword"),
             "code": keyword,
             "display": service_title,
@@ -108,7 +107,9 @@ class AnalysisToObservation(object):
             coding.append({
                 "system": fapi.get_system_code("AnalysisService"),
                 "code":  self.analysis.getProtocolID(),
-                "display": api.safe_unicode( self.analysis.Description()) or title,
+                "display": api.safe_unicode(
+                    self.analysis.Description()
+                ) or title,
             })
         return {
             "coding": coding,

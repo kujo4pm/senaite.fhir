@@ -25,6 +25,7 @@ def to_naming_system_url(system_id):
     """
     return "%s/NamingSystem/%s" % (FHIR_BASE_URL, system_id)
 
+
 def to_code_system_url(system_id):
     """Returns the canonical CodeSystem URI
     Please see: https://fhir.senaite.org/artifacts.html#terminology
