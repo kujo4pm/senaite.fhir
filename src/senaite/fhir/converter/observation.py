@@ -11,6 +11,7 @@ from senaite.fhir.config import SYSTEM_CODES
 from senaite.fhir.config import UCUM_SYSTEM
 from senaite.fhir.converter import first_by
 from senaite.fhir.converter import to_fhir_profile_url
+from senaite.fhir.converter import to_code_system_url
 from senaite.fhir.exceptions import ObservationValidationError
 from senaite.fhir.interfaces import IContentToFHIR
 from senaite.fhir.interfaces import IFHIRToContent
@@ -90,21 +91,27 @@ class AnalysisToObservation(object):
         return storage.get("data") or {}
 
     def get_code(self):
-        ordered_test = self.get_order_detail()
-        if ordered_test:
-            return ordered_test
+        """ Here we build the code which will include the keyword
+         and its corresponding LOINC code.
+        """
 
         service = self.analysis.getAnalysisService()
         keyword = self.analysis.getKeyword()
         title = api.get_title(self.analysis)
         service_title = api.get_title(service) if service else title
-        system = dict(SYSTEM_CODES).get("AnalysisService")
+        coding =  [{
+            "system": to_code_system_url("analysis-keyword"),
+            "code": keyword,
+            "display": service_title,
+        }]
+        if self.analysis.getProtocolID():
+            coding.append({
+                "system": fapi.get_system_code("AnalysisService"),
+                "code":  self.analysis.getProtocolID(),
+                "display": api.safe_unicode( self.analysis.Description()) or title,
+            })
         return {
-            "coding": [{
-                "system": system,
-                "code": keyword,
-                "display": service_title,
-            }],
+            "coding": coding,
             "text": title,
         }
 

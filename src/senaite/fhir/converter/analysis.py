@@ -7,6 +7,7 @@ from senaite.fhir.config import DEFAULT_INSTRUMENT_SERVICE_REQUEST_CATEGORY
 from senaite.fhir.config import INSTRUMENT_SERVICE_REQUEST_STATUSES
 from senaite.fhir.converter import to_fhir_datetime
 from senaite.fhir.converter import to_fhir_identifier as to_fhir_id
+from senaite.fhir.converter import to_code_system_url
 from senaite.fhir.converter import to_fhir_profile_url
 from senaite.fhir.interfaces import IContentToFHIR
 from senaite.fhir.resource.servicerequest import ServiceRequestResource
@@ -96,12 +97,20 @@ class AnalysisToInstrumentServiceRequest(object):
         if not service:
             return {"concept": {"text": title}}
 
-        coding = {
-            "system": fapi.get_system_code("AnalysisService"),
-            "code": service.getProtocolID(),
-            "display": api.safe_unicode(service.Description()) or title,
-        }
-        return {"concept": {"coding": [coding], "text": title}}
+        # an analysis service will always have a keyword
+        coding = [{
+            "system": to_code_system_url("analysis-keyword"),
+            "code": service.getKeyword(),
+            "display": title,
+        }]
+        if service.getProtocolID():
+            coding.append({
+                "system": fapi.get_system_code("AnalysisService"),
+                "code": service.getProtocolID(),
+                "display": api.safe_unicode(service.Description()) or title,
+            })
+
+        return {"concept": {"coding": coding, "text": title}}
 
     def get_authored_on(self):
         """Returns the datetime the Analysis was (last) assigned to its
