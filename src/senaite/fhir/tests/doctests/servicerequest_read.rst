@@ -66,8 +66,8 @@ Instrument to one of its Analyses:
     >>> category = api.create(setup.analysiscategories, "AnalysisCategory",
     ...                       title="CBC", Department=department)
     >>> Hb = api.create(portal.bika_setup.bika_analysisservices,
-    ...                 "AnalysisService", title="Haemoglobin", Keyword="Hb",ProtocolID="718-7",
-    ...                 Category=category.UID())
+    ...                 "AnalysisService", title="Haemoglobin", Keyword="Hb",
+    ...                 ProtocolID="718-7", Category=category.UID())
     >>> instr_type = api.create(setup.instrumenttypes, "InstrumentType",
     ...                         title=u"Haematology Analyser")
     >>> instrument = api.create(portal.bika_setup.bika_instruments,
@@ -160,8 +160,9 @@ Analysis maps to ``active``):
     >>> resource["category"][0]["coding"][0]["code"]
     u'108252007'
 
-``code`` carries the AnalysisService's LOINC coding and the Analysis title
-as text:
+`code` carries two codings -- the SENAITE analysis keyword and the LOINC code
+from the service's ProtocolID -- plus the Analysis title as text:
+
     >>> resource["code"]["concept"]["coding"][0]["system"]
     u'https://fhir.senaite.org/CodeSystem/analysis-keyword'
     >>> resource["code"]["concept"]["coding"][0]["code"] == Hb.getKeyword()
