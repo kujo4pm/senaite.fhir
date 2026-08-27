@@ -92,22 +92,22 @@ class AnalysisToInstrumentServiceRequest(object):
         return [DEFAULT_INSTRUMENT_SERVICE_REQUEST_CATEGORY]
 
     def get_code(self):
-        service = self.analysis.getAnalysisService()
-        title = api.get_title(self.analysis)
-        if not service:
-            return {"concept": {"text": title}}
-
-        # an analysis service will always have a keyword
+        title = api.safe_unicode(api.get_title(self.analysis))
+        keyword = api.safe_unicode(self.analysis.getKeyword())
         coding = [{
             "system": to_code_system_url("analysis-keyword"),
-            "code": service.getKeyword(),
+            "code": keyword,
             "display": title,
         }]
-        if service.getProtocolID():
+
+        # TODO we rely on ProtocolID field for the LOINC code!
+        protocol_id = api.safe_unicode(self.analysis.getProtocolID())
+        description = api.safe_unicode(api.get_description(self.analysis))
+        if protocol_id:
             coding.append({
                 "system": fapi.get_system_code("AnalysisService"),
-                "code": service.getProtocolID(),
-                "display": api.safe_unicode(service.Description()) or title,
+                "code": protocol_id,
+                "display": description if description else title,
             })
 
         return {"concept": {"coding": coding, "text": title}}

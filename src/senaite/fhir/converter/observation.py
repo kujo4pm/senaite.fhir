@@ -93,24 +93,24 @@ class AnalysisToObservation(object):
         """ Here we build the code which will include the keyword
          and its corresponding LOINC code.
         """
-
-        service = self.analysis.getAnalysisService()
-        keyword = self.analysis.getKeyword()
-        title = api.get_title(self.analysis)
-        service_title = api.get_title(service) if service else title
+        title = api.safe_unicode(api.get_title(self.analysis))
+        keyword = api.safe_unicode(self.analysis.getKeyword())
         coding = [{
             "system": to_code_system_url("analysis-keyword"),
             "code": keyword,
-            "display": service_title,
+            "display": title,
         }]
-        if self.analysis.getProtocolID():
+
+        # TODO we rely on ProtocolID field for the LOINC code!
+        protocol_id = api.safe_unicode(self.analysis.getProtocolID())
+        description = api.safe_unicode(api.get_description(self.analysis))
+        if protocol_id:
             coding.append({
                 "system": fapi.get_system_code("AnalysisService"),
-                "code":  self.analysis.getProtocolID(),
-                "display": api.safe_unicode(
-                    self.analysis.Description()
-                ) or title,
+                "code": protocol_id,
+                "display": description if description else title,
             })
+
         return {
             "coding": coding,
             "text": title,
