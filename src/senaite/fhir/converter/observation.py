@@ -116,28 +116,6 @@ class AnalysisToObservation(object):
             "text": title,
         }
 
-    def get_order_detail(self):
-        source_data = self.get_source_data()
-        order_details = source_data.get("orderDetail") or []
-        system = fapi.get_system_code("AnalysisService")
-        keyword = self.analysis.getKeyword()
-        title = api.get_title(self.analysis)
-        match_by_title = None
-
-        for order_detail in order_details:
-            parameters = order_detail.get("parameter") or []
-            for param in parameters:
-                concept = param.get("valueCodeableConcept") or {}
-                coding = first_by(concept.get("coding"), system=system)
-                if not coding:
-                    continue
-                if coding.get("code") == keyword:
-                    return concept
-                if coding.get("display") == title or concept.get("text") == title:  # noqa: E501
-                    match_by_title = concept
-
-        return match_by_title
-
     def get_based_on(self):
         source_data = self.get_source_data()
         if source_data.get("basedOn"):
