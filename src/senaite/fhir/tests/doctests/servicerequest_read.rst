@@ -160,16 +160,17 @@ Analysis maps to ``active``):
     >>> resource["category"][0]["coding"][0]["code"]
     u'108252007'
 
-`code` carries two codings -- the SENAITE analysis keyword and the LOINC code
-from the service's ProtocolID -- plus the Analysis title as text:
+`code` carries two codings -- the LOINC code from the service's ProtocolID
+first, as the interoperable one, then the SENAITE analysis keyword -- plus the
+Analysis title as text:
 
     >>> resource["code"]["concept"]["coding"][0]["system"]
-    u'https://fhir.senaite.org/CodeSystem/analysis-keyword'
-    >>> resource["code"]["concept"]["coding"][0]["code"] == Hb.getKeyword()
+    u'http://loinc.org'
+    >>> resource["code"]["concept"]["coding"][0]["code"] == Hb.getProtocolID()
     True
     >>> resource["code"]["concept"]["coding"][1]["system"]
-    u'http://loinc.org'
-    >>> resource["code"]["concept"]["coding"][1]["code"] == Hb.getProtocolID()
+    u'https://fhir.senaite.org/CodeSystem/analysis-keyword'
+    >>> resource["code"]["concept"]["coding"][1]["code"] == Hb.getKeyword()
     True
     >>> resource["code"]["concept"]["text"] == api.get_title(analysis)
     True

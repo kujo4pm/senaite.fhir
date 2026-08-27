@@ -95,21 +95,27 @@ class AnalysisToObservation(object):
         """
         title = api.safe_unicode(api.get_title(self.analysis))
         keyword = api.safe_unicode(self.analysis.getKeyword())
-        coding = [{
-            "system": to_code_system_url("analysis-keyword"),
-            "code": keyword,
-            "display": title,
-        }]
-
-        # TODO we rely on ProtocolID field for the LOINC code!
-        protocol_id = api.safe_unicode(self.analysis.getProtocolID())
         description = api.safe_unicode(api.get_description(self.analysis))
+
+        # LOINC goes first: the IG treats it as the interoperable coding and
+        # the keyword as a SENAITE-internal convenience, so consumers reading
+        # `coding[0]` get the interoperable one
+        # TODO we rely on ProtocolID field for the LOINC code!
+        coding = []
+        protocol_id = api.safe_unicode(self.analysis.getProtocolID())
         if protocol_id:
             coding.append({
                 "system": fapi.get_system_code("AnalysisService"),
                 "code": protocol_id,
                 "display": description if description else title,
             })
+
+        # an analysis always carries a keyword
+        coding.append({
+            "system": to_code_system_url("analysis-keyword"),
+            "code": keyword,
+            "display": title,
+        })
 
         return {
             "coding": coding,
