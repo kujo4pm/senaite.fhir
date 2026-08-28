@@ -120,15 +120,25 @@ class AnalysisRequestToSpecimen(object):
         if collection:
             data["collection"] = collection
 
+        # build identifiers
+        # sample id will always exist
+        identifiers = [
+            to_fhir_id(
+                "sample-id",
+                ar.getId(),
+                use="usual",
+            )
+        ]
+
         client_sample_id = ar.getClientSampleID()
         if client_sample_id:
-            data["identifier"] = [
+            identifiers.append(
                 to_fhir_id(
                     "client-sample-id",
                     client_sample_id,
-                    use="secondary",
-                )
-            ]
+                    use="secondary1",
+                ))
+        data["identifier"] = identifiers
 
         return SpecimenResource(data)
 
